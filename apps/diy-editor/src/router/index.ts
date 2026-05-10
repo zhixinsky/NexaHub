@@ -1,6 +1,7 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router';
 import Layout from '@/views/layout/index.vue';
 import Tabbar from '@/views/tabbar/index.vue';
+import PreviewPage from '@/views/preview/index.vue';
 
 export const constantRoutes: RouteRecordRaw[] = [
     {
@@ -22,6 +23,11 @@ export const constantRoutes: RouteRecordRaw[] = [
     {
         path: '/tabbar',
         component: Tabbar,
+        meta: { hidden: true },
+    },
+    {
+        path: '/preview',
+        component: PreviewPage,
         meta: { hidden: true },
     },
     // {

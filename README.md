@@ -22,12 +22,16 @@ pnpm --filter @nexahub/api prisma:generate
 pnpm dev
 ```
 
-默认端口：
+开发入口：
 
-- API: `http://localhost:3000`
-- Admin: `http://localhost:5173`
+- Admin 统一入口: `http://localhost:5173`
+- API 代理: `http://localhost:5173/api`
+- DIY 装修: `http://localhost:5173/diy-editor?pageId=1`
+- Mobile H5: `http://localhost:5173/mobile`
 
-后台首页会调用 `GET /health`，成功后显示 API 连接成功。
+API、DIY 编辑器和 Mobile H5 在开发期作为本机内部服务启动，由 admin Vite dev server 代理；浏览器不要直接访问内部端口。
+
+后台首页会调用 `GET /api/health`，成功后显示 API 连接成功。
 
 ## 环境变量
 
@@ -36,7 +40,7 @@ pnpm dev
 ```env
 DATABASE_URL="file:./dev.db"
 API_PORT=3000
-VITE_API_BASE_URL=http://localhost:3000
+VITE_API_BASE_URL=/api
 ```
 
 ## 常用命令

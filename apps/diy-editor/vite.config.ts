@@ -7,7 +7,25 @@ import Components from 'unplugin-vue-components/vite';
 
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
 import path from 'path';
+import os from 'node:os';
 const pathSrc = path.resolve(__dirname, 'src');
+
+function getLanIPAddress() {
+    const interfaces = os.networkInterfaces();
+    const ignoredName = /(loopback|virtual|vmware|vbox|hyper-v|docker|wsl|tun|tap|singbox)/i;
+    const candidates: string[] = [];
+
+    for (const [name, list] of Object.entries(interfaces)) {
+        if (ignoredName.test(name)) continue;
+        for (const item of list || []) {
+            if (item.family === 'IPv4' && !item.internal && !item.address.startsWith('127.')) {
+                candidates.push(item.address);
+            }
+        }
+    }
+
+    return candidates[0] || 'localhost';
+}
 
 function sendJson(res: any, data: unknown) {
     res.setHeader('Content-Type', 'application/json;charset=utf-8');
@@ -349,7 +367,9 @@ function createMockShopxoPlugin(enabled: boolean) {
                                     is_move: '1'
                                 },
                                 diy_config_operate: {
-                                    is_upload_admin: 1
+                                    is_upload_admin: 1,
+                                    is_preview_button: 1,
+                                    is_save_button: 1
                                 }
                             },
                             preview_url: ''
@@ -546,10 +566,28 @@ function createMockShopxoPlugin(enabled: boolean) {
     };
 }
 
+/** 仅供本地开发：Vite HMR /@vite/client 会使用 eval/new Function；过严 CSP 会导致控制台告警且可能影响热更新。生产环境勿照搬。 */
+const DEV_RELAXED_CSP = [
+    "default-src 'self'",
+    "base-uri 'self'",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https: http:",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob: https: http:",
+    "font-src 'self' data: https:",
+    "connect-src *",
+    "worker-src 'self' blob:",
+    "frame-src 'self' https: http:",
+].join('; ');
+
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
     const env = loadEnv(mode, process.cwd());
+    const publicOrigin = env.VITE_PUBLIC_ORIGIN || `http://${getLanIPAddress()}:5173`;
     return {
+        base: '/diy-editor/',
+        define: {
+            'import.meta.env.VITE_PUBLIC_ORIGIN': JSON.stringify(publicOrigin),
+        },
         resolve: {
             alias: {
                 '@': pathSrc,
@@ -566,10 +604,29 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
             },
         },
         server: {
-            host: '0.0.0.0',
-            port: Number(env.VITE_APP_PORT),
-            open: true, // 运行是否自动打开浏览器
+            host: '127.0.0.1',
+            port: 5174,
+            strictPort: true,
+            open: false,
+            hmr: {
+                protocol: 'ws',
+                host: 'localhost',
+                clientPort: 5173,
+                path: '/diy-editor/__vite_hmr',
+            },
+            ...(mode === 'development'
+                ? {
+                      headers: {
+                          'Content-Security-Policy': DEV_RELAXED_CSP,
+                      },
+                  }
+                : {}),
             proxy: {
+                '/api': {
+                    target: 'http://localhost:3000',
+                    changeOrigin: true,
+                    rewrite: (path) => path.replace(/^\/api/, ''),
+                },
                 // 反向代理解决跨域
                 [env.VITE_APP_BASE_API]: {
                     target: env.VITE_APP_BASE_API_URL, // 接口地址

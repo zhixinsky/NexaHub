@@ -11,7 +11,7 @@ type HealthResponse = {
 const loading = ref(false);
 const health = ref<HealthResponse | null>(null);
 const error = ref('');
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '';
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api';
 
 async function checkHealth() {
   loading.value = true;

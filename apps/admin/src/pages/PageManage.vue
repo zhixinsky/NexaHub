@@ -1,24 +1,42 @@
 <template>
-  <crud-page
-    title="页面"
-    resource="pages"
-    :fields="fields"
-    :status-options="statusOptions"
-    :editor-path="diyEditorPath"
-    :list-copy-link="pageListCopyLink"
-    readonly-status-column
-    show-lifecycle-actions
-  />
+  <div class="page-stack">
+    <n-card :bordered="false" class="panel-card">
+      <n-space justify="end">
+        <n-button type="primary" ghost @click="openMobilePreview">移动端预览</n-button>
+      </n-space>
+    </n-card>
+    <crud-page
+      title="页面"
+      resource="pages"
+      :fields="fields"
+      :status-options="statusOptions"
+      :editor-path="diyEditorPath"
+      :list-copy-link="pageListCopyLink"
+      readonly-status-column
+      show-lifecycle-actions
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
 import CrudPage, { type CrudField, type ListCopyLinkConfig } from '../components/CrudPage.vue';
 
-const diyOrigin = String(import.meta.env.VITE_DIY_EDITOR_ORIGIN || 'http://localhost:5174').replace(/\/$/, '');
-const diyEditorPath = computed(() => `${diyOrigin}/diy-editor`);
+const diyEditorPath = computed(() => '/diy-editor');
+const mobilePreviewBase = String(import.meta.env.VITE_MOBILE_PREVIEW_ORIGIN || '/mobile').replace(/\/$/, '');
 
-const mobileH5Origin = String(import.meta.env.VITE_MOBILE_PREVIEW_ORIGIN || 'http://localhost:5176').replace(/\/$/, '');
+function withCurrentOrigin(pathOrUrl: string) {
+  const publicOrigin = String(import.meta.env.VITE_PUBLIC_ORIGIN || window.location.origin).replace(/\/$/, '');
+  if (/^https?:\/\//i.test(pathOrUrl)) {
+    const url = new URL(pathOrUrl);
+    if (/^(localhost|127\.0\.0\.1)$/i.test(url.hostname) && !['5173', '80', '443'].includes(url.port)) {
+      return `${publicOrigin}${url.pathname}${url.search}${url.hash}`;
+    }
+    return pathOrUrl;
+  }
+  const path = pathOrUrl.startsWith('/') ? pathOrUrl : `/${pathOrUrl}`;
+  return `${publicOrigin}${path}`;
+}
 
 function getPagePathLabel(row: Record<string, unknown>) {
   const code = String(row.code ?? '').trim();
@@ -26,7 +44,7 @@ function getPagePathLabel(row: Record<string, unknown>) {
 }
 
 function getPagePreviewUrl(row: Record<string, unknown>) {
-  return `${mobileH5Origin}/#${getPagePathLabel(row)}`;
+  return withCurrentOrigin(`${mobilePreviewBase}${getPagePathLabel(row)}`);
 }
 
 const pageListCopyLink: ListCopyLinkConfig = {
@@ -35,6 +53,10 @@ const pageListCopyLink: ListCopyLinkConfig = {
   getPathLabel: (row) => getPagePathLabel(row as Record<string, unknown>),
   getFullUrl: (row) => getPagePreviewUrl(row as Record<string, unknown>)
 };
+
+function openMobilePreview() {
+  window.open('/mobile', '_blank', 'noopener,noreferrer');
+}
 
 const platformOptions = [
   { label: 'H5', value: 'h5' },

@@ -121,6 +121,9 @@ importers:
       element-plus:
         specifier: 2.8.1
         version: 2.8.1(vue@3.3.4)
+      lodash:
+        specifier: ^4.17.21
+        version: 4.18.1
       pinia:
         specifier: 2.1.3
         version: 2.1.3(typescript@5.0.4)(vue@3.3.4)

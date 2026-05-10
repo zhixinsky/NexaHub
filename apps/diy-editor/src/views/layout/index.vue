@@ -1,5 +1,5 @@
 <template>
-    <div v-loading.fullscreen.lock="loading" class="app-wrapper no-copy" element-loading-background="rgba(255,255,255,1)" element-loading-custom-class="loading-custom">
+    <div v-loading.fullscreen="loading" class="app-wrapper no-copy" element-loading-background="rgba(255,255,255,1)" element-loading-custom-class="loading-custom">
         <template v-if="!loading_content">
             <template v-if="!is_empty">
                 <navbar v-model="form.model" :save-disabled="save_disabled" @preview="preview_event" @save="save_event" @save-close="save_close_event" />
@@ -322,7 +322,12 @@ const preview_dialog = ref(false);
 const diy_id = ref('');
 const preview_event = (bool: boolean) => {
     save_disabled.value = bool;
-    save_formmat_form_data(form.value, false, false, true);
+    diy_id.value = page_id.value && page_id.value !== default_page_id ? page_id.value : form.value.id || page_id.value || default_page_id;
+    ElMessage.closeAll();
+    preview_dialog.value = true;
+    nextTick(() => {
+        save_formmat_form_data(form.value, false, false, true);
+    });
 };
 const save_disabled = ref(false);
 const save_event = (bool: boolean) => {
@@ -335,19 +340,54 @@ const save_close_event = (bool: boolean) => {
 };
 // save_formmat_form_data: 保存数据， data： 数据， close： 是否关闭， is_export： 是否导出， is_preview： 是否预览
 const save_formmat_form_data = async (data: diy_data_item, close: boolean = false, is_export: boolean = false, is_preview: boolean = false) => {
-    ElMessage({
-        message: '保存中',
-        type: 'success',
-        duration: 0,
-        icon: 'Loading',
-        customClass: 'message-box-custom',
-    })
+    try {
     const clone_form = cloneDeep(data);
+    clone_form.header ||= { name: '页面设置', show_tabs: '1', key: 'page-settings', com_data: {} } as any;
+    clone_form.footer ||= { name: '底部导航', show_tabs: '0', key: 'footer-nav', com_data: {} } as any;
+    clone_form.header.com_data ||= {} as any;
+    clone_form.footer.com_data ||= {} as any;
+    clone_form.header.com_data.style ||= {} as any;
+    clone_form.footer.com_data.style ||= {} as any;
+    clone_form.tabs_data ||= [] as any[];
+    clone_form.diy_data ||= [] as any[];
+
     clone_form.header.show_tabs = '1';
     // 去除位置颜色
     clone_form.header.com_data.style = omit(cloneDeep(clone_form.header.com_data.style), ['position_color']);
 
     clone_form.footer.show_tabs = '0';
+
+    // 预览：不走导出前大批量清洗逻辑，避免因个别组件数据缺失抛错而无法弹窗，且不要使用 duration:0 的常驻 Message（易遮挡画布点击）
+    if (is_preview) {
+        clone_form.header.show_tabs = '0';
+        clone_form.footer.show_tabs = '0';
+        clone_form.tabs_data = clone_form.tabs_data.map((item: any) => ({ ...item, show_tabs: '0' }));
+        clone_form.diy_data = clone_form.diy_data.map((item: any) => ({ ...item, show_tabs: '0' }));
+        const saved_data = diy_data_transfor_form_data(cloneDeep(clone_form));
+        const pid =
+            page_id.value && page_id.value !== default_page_id ? page_id.value : clone_form.id || page_id.value || default_page_id;
+        try {
+            sessionStorage.setItem(`nexahub:diy-preview-draft:${pid}`, JSON.stringify(saved_data));
+            localStorage.setItem(get_storage_key(), JSON.stringify(diy_data_transfor_form_data(cloneDeep(data))));
+        } catch (_) {
+            /* ignore */
+        }
+        diy_id.value = pid;
+        ElMessage.closeAll();
+        // 延后到下一轮宏任务打开弹窗，避免与当前提交的响应式补丁/ElMessage 更新并发触发 Vue renderer 内部 subTree 异常
+        setTimeout(() => {
+            preview_dialog.value = true;
+        }, 0);
+        return;
+    }
+
+    ElMessage.closeAll();
+    ElMessage({
+        message: '保存中',
+        type: 'success',
+        duration: 1200,
+        showClose: false,
+    });
     // 字段比coupon多
     const new_array_1 = ['goods-list', 'article-list', 'blog', 'shop', 'realstore', 'binding', 'ask', 'activity', 'plugins-video'];
     // 数据比正常list多一级
@@ -531,14 +571,6 @@ const save_formmat_form_data = async (data: diy_data_item, close: boolean = fals
     persist_current_form();
     const saved_data = diy_data_transfor_form_data(clone_form);
 
-    if (is_preview) {
-        diy_id.value = page_id.value;
-        preview_dialog.value = true;
-        ElMessage.closeAll();
-        ElMessage.success('已保存到本地');
-        save_disabled.value = false;
-        return;
-    }
     if (is_export) {
         const blob = new Blob([JSON.stringify(saved_data, null, 2)], { type: 'application/json' });
         const link = document.createElement('a');
@@ -547,7 +579,6 @@ const save_formmat_form_data = async (data: diy_data_item, close: boolean = fals
         link.click();
         URL.revokeObjectURL(link.href);
         ElMessage.closeAll();
-        save_disabled.value = false;
         return;
     }
 
@@ -561,8 +592,6 @@ const save_formmat_form_data = async (data: diy_data_item, close: boolean = fals
     } catch (err) {
         ElMessage.closeAll();
         ElMessage.error(err instanceof Error ? `后端保存失败，已保留本地缓存：${err.message}` : '后端保存失败，已保留本地缓存');
-    } finally {
-        save_disabled.value = false;
     }
 
     if (close) {
@@ -571,6 +600,12 @@ const save_formmat_form_data = async (data: diy_data_item, close: boolean = fals
                 window.close();
             })
             .catch(() => {});
+    }
+    } catch (err) {
+        ElMessage.closeAll();
+        ElMessage.error(err instanceof Error ? `处理数据失败：${err.message}` : '处理数据失败');
+    } finally {
+        save_disabled.value = false;
     }
 };
 /**

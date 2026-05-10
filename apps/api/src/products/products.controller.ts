@@ -36,3 +36,13 @@ export class ProductsController {
     return this.productsService.updateStatus(id, status);
   }
 }
+
+@Controller('public/products')
+export class PublicProductsController {
+  constructor(private readonly productsService: ProductsService) {}
+
+  @Get()
+  findAll(@Query() query: ListQuery) {
+    return this.productsService.findAll({ ...query, status: query.status || 'on_sale' });
+  }
+}

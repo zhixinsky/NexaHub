@@ -92,6 +92,7 @@ export function createLocalCommonData() {
             diy_config_operate: {
                 is_base_data: 1,
                 is_upload_admin: 1,
+                is_preview_button: 1,
                 is_save_button: 1,
                 is_save_close_button: 0
             }

@@ -1,6 +1,17 @@
 type ApiResponse<T> = { data: T };
 
-const apiBaseUrl = import.meta.env.VITE_NEXAHUB_API_BASE_URL || '';
+function normalizeBaseUrl(value: unknown) {
+    const raw = String(value ?? '').trim();
+    if (!raw) return '';
+    const unquoted = raw.replace(/^['"]|['"]$/g, '');
+    return unquoted.replace(/\/+$/, '');
+}
+
+// 优先使用 diy-editor 专用变量；未配置时回退到通用变量；两者都没配则走相对路径（配合 vite proxy）。
+const apiBaseUrl =
+    normalizeBaseUrl(import.meta.env.VITE_NEXAHUB_API_BASE_URL) ||
+    normalizeBaseUrl(import.meta.env.VITE_API_BASE_URL) ||
+    '/api';
 
 async function postJson<T>(path: string, body?: any): Promise<ApiResponse<T>> {
     const response = await fetch(`${apiBaseUrl}${path}`, {

@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
-import { getContent, listContents } from '@/api/contents';
+import { computed, onMounted, ref, watch } from 'vue';
+import { getContent, listContents, listPublicContents } from '@/api/contents';
 import type { ContentItem } from '@/api/contents';
+import { getJson } from '@/api/http';
 import { firstUploadUrl, resolveMediaUrl } from '@/utils/assetUrl';
+import { businessQuery, getDataSource, normalizeDataSourceItems } from '@/utils/dataSource';
 
 const props = defineProps<{ block: Record<string, unknown> }>();
 
@@ -20,6 +22,17 @@ async function load() {
   const dt = String(ctx.value.data_type ?? '');
 
   try {
+    const source = getDataSource(ctx.value, 'content');
+    if (source.type === 'business' && source.businessType === 'content') {
+      const res = await listPublicContents(businessQuery(source));
+      items.value = res.items;
+      return;
+    }
+    if (source.type === 'api' && source.api?.url) {
+      items.value = normalizeDataSourceItems<ContentItem>(await getJson(source.api.url));
+      return;
+    }
+
     if (dt === '0') {
       const idsRaw = typeof ctx.value.data_ids === 'string' ? ctx.value.data_ids : '';
       const ids = idsRaw
@@ -71,6 +84,13 @@ async function load() {
 }
 
 onMounted(load);
+
+watch(
+  () => JSON.stringify(ctx.value.dataSource || {}),
+  () => {
+    void load();
+  }
+);
 
 function open(id: string) {
   uni.navigateTo({ url: `/pages/content/detail?id=${encodeURIComponent(id)}` });

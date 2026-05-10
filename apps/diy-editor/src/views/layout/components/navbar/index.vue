@@ -14,8 +14,17 @@
             </div>
         </div>
         <div class="nav-right">
-            <el-button v-if="common_store_config?.diy_config_operate?.is_upload_admin == 1" class="btn-plain" @click="upload_manage">上传管理</el-button>
-            <el-button v-if="common_store_config?.preview_url !== ''" class="btn-plain" :class="saveDisabled ? 'disabled' : ''" :disabled="saveDisabled" @click="preview_event">预览</el-button>
+            <el-button v-if="common_store_config?.diy_config_operate?.is_upload_admin == 1" class="btn-plain" @click="upload_manage">文件管理</el-button>
+            <el-button
+                v-if="
+                    String(common_store_config?.diy_config_operate?.is_preview_button ?? '1') !== '0' ||
+                    (common_store_config?.preview_url && String(common_store_config.preview_url).trim() !== '')
+                "
+                class="btn-plain"
+                :class="saveDisabled ? 'disabled' : ''"
+                :disabled="saveDisabled"
+                @click="preview_event"
+            >预览</el-button>
             <el-button v-if="common_store_config?.diy_config_operate?.is_save_button == 1" :class="[common_store_config?.diy_config_operate?.is_save_close_button == 1 ? 'btn-plain' : 'btn-white', saveDisabled ? 'disabled' : '']" :disabled="saveDisabled" @click="save_event">保存</el-button>
             <el-button v-if="common_store_config?.diy_config_operate?.is_save_close_button == 1" class="btn-white" :class="saveDisabled ? 'disabled' : ''" :disabled="saveDisabled" @click="save_close_event">保存关闭</el-button>
         </div>
@@ -28,16 +37,21 @@
         </template>
         <div class="content pa-20">
             <el-form ref="ruleFormRef" :model="form" :rules="rules" label-width="50" status-icon @submit.prevent>
-                <el-form-item label="封面">
+                <!-- 使用 #label 插槽，避免 el-form-item 对自定义 upload 等生成错误的 label[for]（Chrome 无障碍告警） -->
+                <el-form-item>
+                    <template #label><span>封面</span></template>
                     <upload v-model="form.logo" :limit="1"></upload>
                 </el-form-item>
-                <el-form-item label="名称" prop="name">
+                <el-form-item prop="name">
+                    <template #label><span>名称</span></template>
                     <el-input v-model="form.name" placeholder="请输入名称" clearable @keyup.enter="confirm_event(ruleFormRef)" />
                 </el-form-item>
-                <el-form-item label="描述">
+                <el-form-item>
+                    <template #label><span>描述</span></template>
                     <el-input v-model="form.describe" placeholder="请输入描述" :rows="4" type="textarea" clearable @keyup.enter="confirm_event(ruleFormRef)" />
                 </el-form-item>
-                <el-form-item label="状态">
+                <el-form-item>
+                    <template #label><span>状态</span></template>
                     <el-switch v-model="form.is_enable" active-value="1" inactive-value="0"></el-switch>
                 </el-form-item>
             </el-form>

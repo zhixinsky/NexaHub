@@ -1,8 +1,7 @@
 <template>
     <el-config-provider :locale="zhCn">
-        <keep-alive>
-            <div class="message-box-custom"><div class="el-message__icon"></div></div>
-        </keep-alive>
+        <!-- 勿用 keep-alive 包静态节点：在部分 Vue 版本下与弹窗/teleport 更新并发时易触发内部 subTree 空引用 -->
+        <div class="message-box-custom" aria-hidden="true"><div class="el-message__icon"></div></div>
         <router-view />
     </el-config-provider>
 </template>

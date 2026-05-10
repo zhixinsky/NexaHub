@@ -12,7 +12,9 @@ export class ProductsService {
   async findAll(query: ListQuery) {
     const parsed = parseListQuery(query);
     const where: Prisma.ProductWhereInput = {
+      ...(parsed.ids.length ? { id: { in: parsed.ids } } : {}),
       ...(parsed.status ? { status: parsed.status } : {}),
+      ...(parsed.category ? { category: { contains: parsed.category } } : {}),
       ...(parsed.search
         ? {
             OR: [
@@ -31,7 +33,7 @@ export class ProductsService {
         where,
         skip: parsed.skip,
         take: parsed.take,
-        orderBy: [{ sort: 'desc' }, { createdAt: 'desc' }]
+        orderBy: parsed.sort === 'latest' ? [{ createdAt: 'desc' }] : [{ sort: 'desc' }, { createdAt: 'desc' }]
       }),
       this.prisma.product.count({ where })
     ]);

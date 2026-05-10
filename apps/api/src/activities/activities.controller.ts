@@ -36,3 +36,13 @@ export class ActivitiesController {
     return this.activitiesService.updateStatus(id, status);
   }
 }
+
+@Controller('public/activities')
+export class PublicActivitiesController {
+  constructor(private readonly activitiesService: ActivitiesService) {}
+
+  @Get()
+  findAll(@Query() query: ListQuery) {
+    return this.activitiesService.findAll({ ...query, status: query.status || 'published' });
+  }
+}

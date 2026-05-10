@@ -19,6 +19,8 @@
                 </el-form-item>
             </card-container>
             <div class="divider-line"></div>
+            <data-source-picker v-model="form.dataSource" :allowed-business-types="['content']" default-business-type="content" />
+            <div class="divider-line"></div>
             <card-container class="card-container card-container-br">
                 <div class="mb-12">文章设置</div>
                 <!-- 数据筛选组件, 根据数据源类型显示不同的筛选组件 -->
@@ -56,6 +58,7 @@
 <script setup lang="ts">
 import { get_math } from '@/utils';
 import { commonStore } from '@/store';
+import DataSourcePicker from '@/components/common/data-source-picker/DataSourcePicker.vue';
 const common_store = commonStore();
 /**
  * @description 文章列表（内容）

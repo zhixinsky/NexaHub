@@ -133,7 +133,7 @@ export class UploadController {
     const bodyOriginal = req?.body && typeof (req.body as any).originalname === 'string' ? String((req.body as any).originalname) : '';
     const originalname = bodyOriginal ? bodyOriginal : normalizeOriginalName(file.originalname);
     const categoryId = req?.body && typeof (req.body as any).category_id === 'string' ? String((req.body as any).category_id) : '';
-    const url = `http://localhost:3000/uploads/${file.filename}`;
+    const url = `/api/uploads/${file.filename}`;
     await this.prisma.attachment.create({
       data: {
         type: 'image',
@@ -182,7 +182,7 @@ export class UploadController {
     const bodyOriginal = req?.body && typeof (req.body as any).originalname === 'string' ? String((req.body as any).originalname) : '';
     const originalname = bodyOriginal ? bodyOriginal : normalizeOriginalName(file.originalname);
     const categoryId = req?.body && typeof (req.body as any).category_id === 'string' ? String((req.body as any).category_id) : '';
-    const url = `http://localhost:3000/uploads/${file.filename}`;
+    const url = `/api/uploads/${file.filename}`;
     await this.prisma.attachment.create({
       data: {
         type: 'video',
@@ -230,7 +230,7 @@ export class UploadController {
     const bodyOriginal = req?.body && typeof (req.body as any).originalname === 'string' ? String((req.body as any).originalname) : '';
     const originalname = bodyOriginal ? bodyOriginal : normalizeOriginalName(file.originalname);
     const categoryId = req?.body && typeof (req.body as any).category_id === 'string' ? String((req.body as any).category_id) : '';
-    const url = `http://localhost:3000/uploads/${file.filename}`;
+    const url = `/api/uploads/${file.filename}`;
     await this.prisma.attachment.create({
       data: {
         type: 'file',

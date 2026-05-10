@@ -12,7 +12,9 @@ export class ContentsService {
   async findAll(query: ListQuery) {
     const parsed = parseListQuery(query);
     const where: Prisma.ContentWhereInput = {
+      ...(parsed.ids.length ? { id: { in: parsed.ids } } : {}),
       ...(parsed.status ? { status: parsed.status } : {}),
+      ...(parsed.category ? { category: { contains: parsed.category } } : {}),
       ...(parsed.search
         ? {
             OR: [
@@ -30,7 +32,7 @@ export class ContentsService {
         where,
         skip: parsed.skip,
         take: parsed.take,
-        orderBy: [{ sort: 'desc' }, { createdAt: 'desc' }]
+        orderBy: parsed.sort === 'latest' ? [{ createdAt: 'desc' }] : [{ sort: 'desc' }, { createdAt: 'desc' }]
       }),
       this.prisma.content.count({ where })
     ]);

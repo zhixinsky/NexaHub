@@ -8,7 +8,14 @@ export type NexaHubPage = {
     status: string;
 };
 
-const apiBaseUrl = import.meta.env.VITE_NEXAHUB_API_BASE_URL || '';
+function normalizeBaseUrl(value: unknown) {
+    const raw = String(value ?? '').trim();
+    if (!raw) return '';
+    const unquoted = raw.replace(/^['"]|['"]$/g, '');
+    return unquoted.replace(/\/+$/, '');
+}
+
+const apiBaseUrl = normalizeBaseUrl(import.meta.env.VITE_NEXAHUB_API_BASE_URL) || '/api';
 
 export async function getPage(id: string) {
     const response = await fetch(`${apiBaseUrl}/pages/${id}`);

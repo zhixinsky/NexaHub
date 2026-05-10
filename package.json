@@ -4,7 +4,7 @@
   "private": true,
   "packageManager": "pnpm@9.15.0",
   "scripts": {
-    "dev": "pnpm -r --parallel --filter @nexahub/api --filter @nexahub/admin dev",
+    "dev": "pnpm -r --parallel --filter @nexahub/api --filter @nexahub/admin --filter shopxo-diy --filter @nexahub/mobile dev",
     "build": "pnpm -r --filter @nexahub/api --filter @nexahub/admin build",
     "typecheck": "pnpm -r --filter @nexahub/api --filter @nexahub/admin typecheck",
     "prisma:generate": "pnpm --filter @nexahub/api prisma:generate"

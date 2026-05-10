@@ -22,7 +22,7 @@ export type UploadImageOptions = {
 
 const DEFAULT_MAX_SIZE = 50 * 1024 * 1024;
 const DEFAULT_ACCEPT = ['image/jpeg', 'image/png', 'image/webp'];
-const apiBaseUrl = import.meta.env.VITE_NEXAHUB_API_BASE_URL || '';
+const apiBaseUrl = import.meta.env.VITE_NEXAHUB_API_BASE_URL || '/api';
 
 const getExtension = (name: string) => {
     const index = name.lastIndexOf('.');

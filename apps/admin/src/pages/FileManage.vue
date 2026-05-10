@@ -52,12 +52,12 @@ const categoryTree = ref<CategoryTreeItem[]>([]);
 const categoryId = ref('');
 const moveCategoryId = ref('');
 
-const typeOptions = [
+const typeOptions: Array<{ label: string; value: '' | AttachmentType }> = [
   { label: '全部', value: '' },
   { label: '图片', value: 'image' },
   { label: '视频', value: 'video' },
   { label: '文件', value: 'file' }
-] as const;
+];
 
 const categoryOptions = computed(() => {
   const items: Array<{ label: string; value: string }> = [{ label: '全部分类', value: '' }];
@@ -123,7 +123,7 @@ async function doUpload() {
       if (uploadCategoryId.value) {
         formData.append('category_id', uploadCategoryId.value);
       }
-      const response = await fetch(`/upload/${uploadType.value}`, {
+      const response = await fetch(`/api/upload/${uploadType.value}`, {
         method: 'POST',
         body: formData
       });

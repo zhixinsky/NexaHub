@@ -22,6 +22,8 @@
                 </el-form-item>
             </card-container>
             <div class="divider-line"></div>
+            <data-source-picker v-model="form.dataSource" :allowed-business-types="['product']" default-business-type="product" />
+            <div class="divider-line"></div>
             <card-container class="card-container">
                 <div class="mb-12">商品设置</div>
                 <!-- 数据筛选组件, 根据数据源类型显示不同的筛选组件 -->
@@ -44,6 +46,7 @@
 import { isEmpty } from "lodash";
 import { get_math } from '@/utils';
 import { commonStore } from '@/store';
+import DataSourcePicker from '@/components/common/data-source-picker/DataSourcePicker.vue';
 const common_store = commonStore();
 
 const props = defineProps({

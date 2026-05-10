@@ -3,6 +3,7 @@ import uni from '@dcloudio/vite-plugin-uni';
 import path from 'node:path';
 
 export default defineConfig({
+  base: '/mobile/',
   plugins: [uni()],
   resolve: {
     alias: {
@@ -10,15 +11,21 @@ export default defineConfig({
     }
   },
   server: {
-    host: '0.0.0.0',
-    port: 5176,
+    host: '127.0.0.1',
+    port: 5175,
     strictPort: true,
+    hmr: {
+      protocol: 'ws',
+      host: 'localhost',
+      clientPort: 5173,
+      path: '/mobile/__vite_hmr'
+    },
     proxy: {
-      '/public': { target: 'http://localhost:3000', changeOrigin: true },
-      '/contents': { target: 'http://localhost:3000', changeOrigin: true },
-      '/products': { target: 'http://localhost:3000', changeOrigin: true },
-      '/activities': { target: 'http://localhost:3000', changeOrigin: true },
-      '/uploads': { target: 'http://localhost:3000', changeOrigin: true }
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        rewrite: (requestPath) => requestPath.replace(/^\/api/, '')
+      }
     }
   }
 });

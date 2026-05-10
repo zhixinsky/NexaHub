@@ -341,6 +341,10 @@ watch(
                     upload_type.value = props.type;
                 }
 
+                // 每次打开弹窗都强制刷新分类树，避免后台新增分类后这里仍用旧缓存
+                //（get_tree(true) 会绕过 upload_store 的缓存判断）
+                get_tree(true);
+
                 // 获取附件列表
                 get_attachment_list('1');
 

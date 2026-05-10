@@ -36,3 +36,13 @@ export class ContentsController {
     return this.contentsService.updateStatus(id, status);
   }
 }
+
+@Controller('public/contents')
+export class PublicContentsController {
+  constructor(private readonly contentsService: ContentsService) {}
+
+  @Get()
+  findAll(@Query() query: ListQuery) {
+    return this.contentsService.findAll({ ...query, status: query.status || 'published' });
+  }
+}

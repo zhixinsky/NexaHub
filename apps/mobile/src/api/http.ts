@@ -1,5 +1,5 @@
 export function apiBase(): string {
-  const base = String(import.meta.env.VITE_NEXAHUB_API_BASE_URL || '').replace(/\/$/, '');
+  const base = String(import.meta.env.VITE_NEXAHUB_API_BASE_URL || '/api').replace(/\/$/, '');
   if (base) return base;
   if (typeof location !== 'undefined' && /^https?:$/i.test(location.protocol)) return '';
   return '';

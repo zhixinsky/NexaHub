@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
-import { getProduct, listProducts } from '@/api/products';
+import { computed, onMounted, ref, watch } from 'vue';
+import { getProduct, listProducts, listPublicProducts } from '@/api/products';
 import type { ProductItem } from '@/api/products';
+import { getJson } from '@/api/http';
 import { firstUploadUrl, resolveMediaUrl } from '@/utils/assetUrl';
+import { businessQuery, getDataSource, normalizeDataSourceItems } from '@/utils/dataSource';
 
 const props = defineProps<{ block: Record<string, unknown> }>();
 
@@ -27,6 +29,17 @@ async function load() {
   const dt = String(ctx.value.data_type ?? '');
 
   try {
+    const source = getDataSource(ctx.value, 'product');
+    if (source.type === 'business' && source.businessType === 'product') {
+      const res = await listPublicProducts(businessQuery(source));
+      items.value = res.items;
+      return;
+    }
+    if (source.type === 'api' && source.api?.url) {
+      items.value = normalizeDataSourceItems<ProductItem>(await getJson(source.api.url));
+      return;
+    }
+
     if (dt === '0') {
       const idsRaw = Array.isArray(ctx.value.data_ids)
         ? (ctx.value.data_ids as unknown[]).map(String).join(',')
@@ -68,6 +81,13 @@ async function load() {
 }
 
 onMounted(load);
+
+watch(
+  () => JSON.stringify(ctx.value.dataSource || {}),
+  () => {
+    void load();
+  }
+);
 
 function open(id: string) {
   uni.navigateTo({ url: `/pages/product/detail?id=${encodeURIComponent(id)}` });

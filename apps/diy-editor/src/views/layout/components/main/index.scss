@@ -104,8 +104,11 @@
                     transform: translateX(-50%);
                     width: 39rem;
                     min-height: 100%;
+                    pointer-events: none;
                 }
                 .model-wall {
+                    position: relative;
+                    z-index: 1;
                     width: 39rem;
                     margin: 0 auto;
                     min-height: 100%;

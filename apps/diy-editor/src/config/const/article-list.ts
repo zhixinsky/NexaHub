@@ -21,6 +21,7 @@ interface DefaultArticleList {
         data_list: ArticleList[];
         data_ids: string;
         data_auto_list: ArticleList[];
+        dataSource: object;
         number: number;
         order_by_type: number;
         order_by_rule: number;
@@ -95,6 +96,19 @@ const defaultArticleList: DefaultArticleList = {
         data_list: [],
         data_ids: '',
         data_auto_list: [],
+        dataSource: {
+            type: 'manual',
+            businessType: 'content',
+            query: {
+                category: '',
+                limit: 6,
+                sort: 'latest',
+                ids: [],
+            },
+            api: {
+                url: '',
+            },
+        },
         number: defaultSetting.page_size,
         order_by_type: defaultSetting.order_by_type,
         order_by_rule: defaultSetting.order_by_rule,

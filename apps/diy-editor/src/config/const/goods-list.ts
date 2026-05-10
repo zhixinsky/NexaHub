@@ -17,6 +17,7 @@ interface DefaultProductList {
         product_show_list: string[];
         data_list: string[];
         data_auto_list: string[];
+        dataSource: object;
         is_price_solo: string;
         number: number;
         order_by_type: number;
@@ -111,6 +112,19 @@ const defaultProductList: DefaultProductList = {
         product_show_list: [],
         data_list: [],
         data_auto_list: [],
+        dataSource: {
+            type: 'manual',
+            businessType: 'product',
+            query: {
+                category: '',
+                limit: 6,
+                sort: 'latest',
+                ids: [],
+            },
+            api: {
+                url: '',
+            },
+        },
         data_ids: [],
         // 价格是否独行
         is_price_solo: '1',
