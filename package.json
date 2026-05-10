@@ -1,0 +1,15 @@
+{
+  "name": "nexahub-platform",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "dev": "pnpm -r --parallel --filter @nexahub/api --filter @nexahub/admin dev",
+    "build": "pnpm -r --filter @nexahub/api --filter @nexahub/admin build",
+    "typecheck": "pnpm -r --filter @nexahub/api --filter @nexahub/admin typecheck",
+    "prisma:generate": "pnpm --filter @nexahub/api prisma:generate"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4"
+  }
+}

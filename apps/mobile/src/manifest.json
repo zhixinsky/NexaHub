@@ -1,0 +1,12 @@
+{
+  "name": "NexaHub Mobile",
+  "appid": "__UNI__NEXAHUB",
+  "description": "NexaHub mobile H5/client",
+  "versionName": "0.1.0",
+  "versionCode": "1",
+  "transformPx": false,
+  "app-plus": {},
+  "h5": {
+    "title": "NexaHub Mobile"
+  }
+}

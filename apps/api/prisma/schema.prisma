@@ -1,0 +1,118 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Tenant {
+  id        String   @id @default(cuid())
+  name      String
+  industry  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Content {
+  id        String   @id @default(cuid())
+  title     String
+  subtitle  String   @default("")
+  cover     String   @default("")
+  category  String   @default("")
+  summary   String   @default("")
+  content   String   @default("")
+  status    String   @default("draft")
+  sort      Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Activity {
+  id              String   @id @default(cuid())
+  title           String
+  cover           String   @default("")
+  category        String   @default("")
+  location        String   @default("")
+  startTime       DateTime?
+  endTime         DateTime?
+  signupStartTime DateTime?
+  signupEndTime   DateTime?
+  capacity        Int      @default(0)
+  signupCount     Int      @default(0)
+  price           Float    @default(0)
+  description     String   @default("")
+  status          String   @default("draft")
+  sort            Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Product {
+  id            String   @id @default(cuid())
+  title         String
+  subtitle      String   @default("")
+  cover         String   @default("")
+  category      String   @default("")
+  price         Float    @default(0)
+  originalPrice Float    @default(0)
+  stock         Int      @default(0)
+  unit          String   @default("")
+  tags          String   @default("")
+  description   String   @default("")
+  status        String   @default("draft")
+  sort          Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Page {
+  id        String   @id @default(cuid())
+  name      String
+  code      String   @unique
+  platform  String   @default("h5")
+  dsl       String   @default("{}")
+  source    String   @default("native")
+  status    String   @default("draft")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AttachmentCategory {
+  id        String   @id @default(cuid())
+  pid       String   @default("0")
+  name      String
+  path      String   @default("")
+  sort      Int      @default(0)
+  isEnable  Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  attachments Attachment[]
+
+  @@index([pid])
+  @@index([sort])
+}
+
+model Attachment {
+  id          String   @id @default(cuid())
+  type        String   @default("image") // image | video | file | icon
+  url         String   @default("")
+  filename    String   @default("")
+  original    String   @default("")
+  title       String   @default("")
+  ext         String   @default("")
+  size        Int      @default(0)
+  iconClass   String   @default("")
+  categoryId  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  category AttachmentCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  @@index([type, createdAt])
+  @@index([categoryId])
+  @@index([original])
+  @@index([iconClass])
+}
